@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/ThalesIgnite/crypto11"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -12,6 +11,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/ThalesIgnite/crypto11"
 )
 
 func timedLog(message string) {
@@ -145,6 +146,11 @@ func main() {
 	}
 
 	destUrl, err := url.Parse(*destinationUrl)
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+
 	proxy := httputil.NewSingleHostReverseProxy(destUrl)
 	proxy.Transport = transport
 
