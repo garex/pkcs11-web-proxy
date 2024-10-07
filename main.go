@@ -43,9 +43,12 @@ func listCertificates(pkcs11path, tokenSerial *string, pinVal string) {
 	}
 }
 
-func modifyResponse() func(*http.Response) error {
+func modifyResponse(destinationUrl *url.URL) func(*http.Response) error {
 	return func(resp *http.Response) error {
-		resp.Header.Set("X-Proxy", "Magical")
+		if resp.Header.Get("Location") != "" {
+			newLocation := strings.Replace(resp.Header.Get("Location"), destinationUrl.String(), "", 1)
+			resp.Header.Set("Location", newLocation)
+		}
 		return nil
 	}
 }
@@ -172,7 +175,7 @@ func main() {
 			p.ServeHTTP(w, r)
 		}
 	}
-	proxy.ModifyResponse = modifyResponse()
+	proxy.ModifyResponse = modifyResponse(destUrl)
 
 	http.HandleFunc("/", handler(proxy))
 	if *listenTLS {
