@@ -43,6 +43,13 @@ func listCertificates(pkcs11path, tokenSerial *string, pinVal string) {
 	}
 }
 
+func modifyResponse() func(*http.Response) error {
+	return func(resp *http.Response) error {
+		resp.Header.Set("X-Proxy", "Magical")
+		return nil
+	}
+}
+
 func main() {
 	listenAddress := flag.String("listen-addr", "127.0.0.1", "Address to listen on")
 	listenPort := flag.Int("listen-port", 8080, "Port to listen on")
@@ -165,6 +172,7 @@ func main() {
 			p.ServeHTTP(w, r)
 		}
 	}
+	proxy.ModifyResponse = modifyResponse()
 
 	http.HandleFunc("/", handler(proxy))
 	if *listenTLS {
