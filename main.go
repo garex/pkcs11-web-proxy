@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -189,6 +190,21 @@ func main() {
 	proxy.ModifyResponse = modifyResponse(destUrl)
 
 	http.HandleFunc("/", handler(proxy))
+
+	type HealthResponse struct {
+		Status    string    `json:"status"`
+		Timestamp time.Time `json:"timestamp"`
+	}
+
+	http.HandleFunc("/.pkcs11-web-proxy/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/health+json")
+		responseBody, _ := json.Marshal(&HealthResponse{
+			Status:    "ok",
+			Timestamp: time.Now(),
+		})
+		w.Write(responseBody)
+	})
+
 	if *listenTLS {
 		timedLog(fmt.Sprintf("Listening on %s:%d over TLS", *listenAddress, *listenPort))
 		log.Fatal(http.ListenAndServeTLS(fmt.Sprintf("%s:%d", *listenAddress, *listenPort), *listenTLSCertificate, *listenTLSPrivateKey, nil))
