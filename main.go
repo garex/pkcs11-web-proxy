@@ -50,10 +50,15 @@ func modifyResponse(destinationUrl *url.URL) func(*http.Response) error {
 			resp.Header.Set("Location", newLocation)
 		}
 		// Disable secure cookies
-		for _, cookie := range resp.Cookies() {
+		cookies := resp.Cookies()
+		if len(cookies) > 0 {
+			resp.Header.Del("Set-Cookie")
+		}
+		for _, cookie := range cookies {
 			if cookie.Secure {
 				cookie.Secure = false
 			}
+			resp.Header.Add("Set-Cookie", cookie.String())
 		}
 		return nil
 	}
