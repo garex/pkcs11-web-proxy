@@ -26,3 +26,6 @@ go.work
 # Binaries
 pkcs11-web-proxy
 pkcs11-web-proxy.exe
+
+# Certs
+*.pem
