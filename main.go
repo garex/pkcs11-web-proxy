@@ -49,6 +49,12 @@ func modifyResponse(destinationUrl *url.URL) func(*http.Response) error {
 			newLocation := strings.Replace(resp.Header.Get("Location"), destinationUrl.String(), "", 1)
 			resp.Header.Set("Location", newLocation)
 		}
+		// Disable secure cookies
+		for _, cookie := range resp.Cookies() {
+			if cookie.Secure {
+				cookie.Secure = false
+			}
+		}
 		return nil
 	}
 }
